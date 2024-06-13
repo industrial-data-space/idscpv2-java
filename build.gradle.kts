@@ -1,6 +1,8 @@
+
 import com.diffplug.gradle.spotless.SpotlessApply
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
@@ -49,6 +51,13 @@ allprojects {
         }
     }
 }
+
+// Create and register ExecutionService which enforces serial execution of assigned tasks
+abstract class SerialExecutionService : BuildService<BuildServiceParameters.None>
+val serialExecutionService =
+    gradle.sharedServices.registerIfAbsent("serialExecution", SerialExecutionService::class.java) {
+        this.maxParallelUsages.set(1)
+    }
 
 val spotlessApplyAll: Task by tasks.creating
 
@@ -122,8 +131,8 @@ subprojects {
     }
 
     tasks.withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "11"
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
         }
     }
 
@@ -194,6 +203,11 @@ subprojects {
                             username = project.findProperty("deployUsername") as? String
                             password = project.findProperty("deployPassword") as? String
                         }
+                    }
+
+                    // Prevent parallel publishing
+                    tasks.withType<PublishToMavenRepository> {
+                        usesService(serialExecutionService)
                     }
                 }
             }
