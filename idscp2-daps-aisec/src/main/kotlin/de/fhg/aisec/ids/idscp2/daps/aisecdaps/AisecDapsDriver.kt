@@ -369,9 +369,8 @@ class AisecDapsDriver(private val config: AisecDapsDriverConfig) : DapsDriver {
      * @return The number of seconds this DAT is valid
      * @throws DatException
      */
-    override fun verifyToken(dat: ByteArray, peerCertificateFingerprint: String): VerifiedDat {
-        return innerVerifyToken(dat, securityRequirements, peerCertificateFingerprint, false)
-    }
+    override fun verifyToken(dat: ByteArray, peerCertificateFingerprint: String): VerifiedDat =
+        innerVerifyToken(dat, securityRequirements, peerCertificateFingerprint, false)
 
     /**
      * Verify a given dynamic attribute token, given the security attributes as parameter.

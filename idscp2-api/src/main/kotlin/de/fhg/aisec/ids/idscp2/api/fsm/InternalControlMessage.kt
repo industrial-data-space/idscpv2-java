@@ -25,9 +25,7 @@ package de.fhg.aisec.ids.idscp2.api.fsm
  *
  * @author Leon Beckmann (leon.beckmann@aisec.fraunhofer.de)
  */
-enum class InternalControlMessage(
-    val value: String
-) {
+enum class InternalControlMessage(val value: String) {
     // Using unique values that are different from IdscpMessage.MessageCase to identify event.key
     START_IDSCP_HANDSHAKE("ICM_START"),
     IDSCP_STOP("ICM_STOP"),

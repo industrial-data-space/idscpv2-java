@@ -34,7 +34,9 @@ import org.slf4j.LoggerFactory
  * The IDSCP2 server consumer.
  */
 class Idscp2ServerConsumer(private val endpoint: Idscp2ServerEndpoint, processor: Processor) :
-    DefaultConsumer(endpoint, processor), GenericMessageListener, IdsMessageListener {
+    DefaultConsumer(endpoint, processor),
+    GenericMessageListener,
+    IdsMessageListener {
     override fun doStart() {
         super.doStart()
         endpoint.addConsumer(this)

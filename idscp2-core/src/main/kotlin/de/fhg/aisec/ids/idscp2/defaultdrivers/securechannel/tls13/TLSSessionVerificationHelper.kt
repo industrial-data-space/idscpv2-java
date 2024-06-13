@@ -185,9 +185,8 @@ object TLSSessionVerificationHelper {
     /*
      * check if host is an IP Address
      */
-    private fun isIpAddress(host: String): Boolean {
-        return ipv4Pattern.matcher(host).matches() || ipv6Pattern.matcher(host).matches()
-    }
+    private fun isIpAddress(host: String): Boolean =
+        ipv4Pattern.matcher(host).matches() || ipv6Pattern.matcher(host).matches()
 
     /*
      * match dNS Name

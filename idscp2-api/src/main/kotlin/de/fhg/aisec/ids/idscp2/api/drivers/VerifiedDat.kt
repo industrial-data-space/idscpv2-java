@@ -20,9 +20,8 @@
 package de.fhg.aisec.ids.idscp2.api.drivers
 
 data class VerifiedDat(val bytes: ByteArray, val identity: String, val expirationTime: Long) {
-    fun remainingValidity(renewalThreshold: Float): Long {
-        return ((expirationTime - (System.currentTimeMillis() / 1000)) * renewalThreshold).toLong()
-    }
+    fun remainingValidity(renewalThreshold: Float): Long =
+        ((expirationTime - (System.currentTimeMillis() / 1000)) * renewalThreshold).toLong()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

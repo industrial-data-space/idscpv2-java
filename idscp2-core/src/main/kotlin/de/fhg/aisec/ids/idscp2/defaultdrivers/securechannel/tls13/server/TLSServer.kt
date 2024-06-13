@@ -48,7 +48,8 @@ class TLSServer<CC : Idscp2Connection>(
     private val nativeTlsConfiguration: NativeTlsConfiguration,
     private val serverConfiguration: Idscp2Configuration,
     private val connectionFactory: (FSM, String) -> CC
-) : Runnable, SecureServer {
+) : Runnable,
+    SecureServer {
 
     @Volatile
     override var isRunning = false

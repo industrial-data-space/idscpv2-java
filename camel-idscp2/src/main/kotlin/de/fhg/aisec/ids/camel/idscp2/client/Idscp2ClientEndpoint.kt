@@ -50,7 +50,8 @@ import java.util.concurrent.CompletableFuture
     label = "ids"
 )
 class Idscp2ClientEndpoint(uri: String?, override val remaining: String, component: Idscp2ClientComponent?) :
-    DefaultEndpoint(uri, component), Idscp2Endpoint {
+    DefaultEndpoint(uri, component),
+    Idscp2Endpoint {
     private val secureChannelDriver = NativeTLSDriver<AppLayerConnection>()
 
     @UriParam(
@@ -189,13 +190,11 @@ class Idscp2ClientEndpoint(uri: String?, override val remaining: String, compone
         }
     }
 
-    fun makeConnection(): CompletableFuture<AppLayerConnection> {
-        return connectionShareId?.let {
-            sharedConnections.computeIfAbsent(it) {
-                makeConnectionInternal()
-            }
-        } ?: makeConnectionInternal()
-    }
+    fun makeConnection(): CompletableFuture<AppLayerConnection> = connectionShareId?.let {
+        sharedConnections.computeIfAbsent(it) {
+            makeConnectionInternal()
+        }
+    } ?: makeConnectionInternal()
 
     fun releaseConnection(connectionFuture: CompletableFuture<AppLayerConnection>) {
         connectionShareId?.let { sharedConnections.release(it) } ?: releaseConnectionInternal(connectionFuture)
@@ -208,13 +207,9 @@ class Idscp2ClientEndpoint(uri: String?, override val remaining: String, compone
         return makeConnection()
     }
 
-    override fun createProducer(): Producer {
-        return Idscp2ClientProducer(this)
-    }
+    override fun createProducer(): Producer = Idscp2ClientProducer(this)
 
-    override fun createConsumer(processor: Processor): org.apache.camel.Consumer {
-        return Idscp2ClientConsumer(this, processor)
-    }
+    override fun createConsumer(processor: Processor): org.apache.camel.Consumer = Idscp2ClientConsumer(this, processor)
 
     public override fun doStart() {
         if (LOG.isDebugEnabled) {

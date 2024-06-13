@@ -31,13 +31,11 @@ enum class SecurityProfile {
         private const val CONNECTOR_SECURITY_PROFILE_TRUSTED = "idsc:TRUSTED_CONNECTOR_SECURITY_PROFILE"
         private const val CONNECTOR_SECURITY_PROFILE_TRUSTED_PLUS = "idsc:TRUSTED_CONNECTOR_PLUS_SECURITY_PROFILE"
 
-        fun fromString(s: String): SecurityProfile {
-            return when (s) {
-                CONNECTOR_SECURITY_PROFILE_BASE -> BASE
-                CONNECTOR_SECURITY_PROFILE_TRUSTED -> TRUSTED
-                CONNECTOR_SECURITY_PROFILE_TRUSTED_PLUS -> TRUSTED_PLUS
-                else -> INVALID
-            }
+        fun fromString(s: String): SecurityProfile = when (s) {
+            CONNECTOR_SECURITY_PROFILE_BASE -> BASE
+            CONNECTOR_SECURITY_PROFILE_TRUSTED -> TRUSTED
+            CONNECTOR_SECURITY_PROFILE_TRUSTED_PLUS -> TRUSTED_PLUS
+            else -> INVALID
         }
     }
 }

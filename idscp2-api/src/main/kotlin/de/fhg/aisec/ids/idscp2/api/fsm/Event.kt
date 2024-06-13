@@ -79,20 +79,16 @@ class Event {
         }
     }
 
-    private fun idscpMessageAsString(): String {
-        return if (idscpMessage.hasIdscpData()) {
-            "<hidden payload>"
-        } else {
-            idscpMessage.toString()
-        }
+    private fun idscpMessageAsString(): String = if (idscpMessage.hasIdscpData()) {
+        "<hidden payload>"
+    } else {
+        idscpMessage.toString()
     }
 
-    override fun toString(): String {
-        return "Event {" +
-            "key=" + key +
-            ", type=" + type +
-            ", idscpMessage: " + (if (::idscpMessage.isInitialized) idscpMessageAsString() else null) +
-            ", controlMessage: " + (if (::controlMessage.isInitialized) controlMessage else null) +
-            "}"
-    }
+    override fun toString(): String = "Event {" +
+        "key=" + key +
+        ", type=" + type +
+        ", idscpMessage: " + (if (::idscpMessage.isInitialized) idscpMessageAsString() else null) +
+        ", controlMessage: " + (if (::controlMessage.isInitialized) controlMessage else null) +
+        "}"
 }

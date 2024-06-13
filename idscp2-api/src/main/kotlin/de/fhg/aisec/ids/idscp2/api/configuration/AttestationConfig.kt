@@ -53,9 +53,7 @@ class AttestationConfig {
             return this
         }
 
-        fun build(): AttestationConfig {
-            return config
-        }
+        fun build(): AttestationConfig = config
     }
 
     override fun equals(other: Any?): Boolean {
@@ -67,13 +65,11 @@ class AttestationConfig {
             raTimeoutDelay == that.raTimeoutDelay
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(
-            supportedAttestationSuite.contentHashCode(),
-            expectedAttestationSuite.contentHashCode(),
-            raTimeoutDelay
-        )
-    }
+    override fun hashCode(): Int = Objects.hash(
+        supportedAttestationSuite.contentHashCode(),
+        expectedAttestationSuite.contentHashCode(),
+        raTimeoutDelay
+    )
 
     companion object {
         const val DEFAULT_RA_TIMEOUT_DELAY = "3600000" // in ms: 1 hour

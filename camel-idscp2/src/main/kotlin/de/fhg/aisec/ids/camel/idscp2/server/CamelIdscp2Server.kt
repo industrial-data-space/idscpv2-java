@@ -34,8 +34,7 @@ class CamelIdscp2Server(
     serverConfiguration: Idscp2Configuration,
     nativeTlsConfiguration: NativeTlsConfiguration,
     private val useIdsMessages: Boolean
-) :
-    Idscp2EndpointListener<AppLayerConnection> {
+) : Idscp2EndpointListener<AppLayerConnection> {
     private val server: Idscp2Server<AppLayerConnection>
     private val listeners = LinkedHashSet<Idscp2EndpointListener<AppLayerConnection>>()
 

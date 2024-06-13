@@ -178,14 +178,13 @@ class NativeTlsConfiguration private constructor() {
         return result
     }
 
-    override fun toString(): String {
-        return "Idscp2Configuration(serverPort=$serverPort, host='$host', trustStorePath=$trustStorePath, " +
+    override fun toString(): String =
+        "Idscp2Configuration(serverPort=$serverPort, host='$host', trustStorePath=$trustStorePath, " +
             "trustStorePassword=${trustStorePassword.contentToString()}, " +
             "keyStorePath=$keyStorePath, keyStorePassword=${keyStorePassword.contentToString()}, " +
             "certificateAlias='$certificateAlias', " +
             "keyStoreKeyType='$keyStoreKeyType', " + "socketTimeout='$socketTimeout', " +
             "hostnameVerificationEnabled='$hostnameVerificationEnabled'"
-    }
 
     companion object {
         const val DEFAULT_SERVER_PORT = 29292

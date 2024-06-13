@@ -32,15 +32,13 @@ data class DapsMeta(val issuer: String, val jwksUri: String, val tokenEndpoint: 
                 "$url/token"
             )
         }
-        fun fromJson(json: Map<String, Any>): DapsMeta {
-            return DapsMeta(
-                json["issuer"] as String?
-                    ?: throw DatException("\"issuer\" not found in DAPS meta JSON"),
-                json["jwks_uri"] as String?
-                    ?: throw DatException("\"jwks_uri\" not found in DAPS meta JSON"),
-                json["token_endpoint"] as String?
-                    ?: throw DatException("\"token_endpoint\" not found in DAPS meta JSON")
-            )
-        }
+        fun fromJson(json: Map<String, Any>): DapsMeta = DapsMeta(
+            json["issuer"] as String?
+                ?: throw DatException("\"issuer\" not found in DAPS meta JSON"),
+            json["jwks_uri"] as String?
+                ?: throw DatException("\"jwks_uri\" not found in DAPS meta JSON"),
+            json["token_endpoint"] as String?
+                ?: throw DatException("\"token_endpoint\" not found in DAPS meta JSON")
+        )
     }
 }

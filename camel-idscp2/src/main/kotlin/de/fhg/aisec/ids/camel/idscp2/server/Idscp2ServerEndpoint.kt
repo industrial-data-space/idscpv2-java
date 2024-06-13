@@ -51,7 +51,9 @@ import org.slf4j.LoggerFactory
     label = "ids"
 )
 class Idscp2ServerEndpoint(uri: String?, override val remaining: String, component: Idscp2ServerComponent?) :
-    DefaultEndpoint(uri, component), Idscp2EndpointListener<AppLayerConnection>, Idscp2Endpoint {
+    DefaultEndpoint(uri, component),
+    Idscp2EndpointListener<AppLayerConnection>,
+    Idscp2Endpoint {
     private var server: CamelIdscp2Server? = null
     private val consumers: MutableSet<Idscp2ServerConsumer> = HashSet()
 
@@ -181,14 +183,10 @@ class Idscp2ServerEndpoint(uri: String?, override val remaining: String, compone
     }
 
     @Synchronized
-    override fun createProducer(): Producer {
-        return Idscp2ServerProducer(this)
-    }
+    override fun createProducer(): Producer = Idscp2ServerProducer(this)
 
     @Synchronized
-    override fun createConsumer(processor: Processor): Consumer {
-        return Idscp2ServerConsumer(this, processor)
-    }
+    override fun createConsumer(processor: Processor): Consumer = Idscp2ServerConsumer(this, processor)
 
     @Synchronized
     override fun onConnection(connection: AppLayerConnection) {

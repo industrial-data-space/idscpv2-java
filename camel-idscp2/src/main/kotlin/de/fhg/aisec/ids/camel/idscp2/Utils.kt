@@ -53,11 +53,10 @@ object Utils {
     var dapsUrlProducer: () -> String = { Constants.DEFAULT_DAPS_URL }
 
     @Suppress("MemberVisibilityCanBePrivate")
-    fun createGregorianCalendarTimestamp(timeInput: Long): XMLGregorianCalendar {
-        return DatatypeFactory.newInstance().newXMLGregorianCalendar(
+    fun createGregorianCalendarTimestamp(timeInput: Long): XMLGregorianCalendar =
+        DatatypeFactory.newInstance().newXMLGregorianCalendar(
             GregorianCalendar().apply { timeInMillis = timeInput }
         )
-    }
 
     fun finalizeMessage(messageBuilder: Any, connection: Idscp2Connection): Message {
         if (messageBuilder is Message) {
@@ -166,60 +165,56 @@ fun Idscp2Endpoint.doCommonEndpointConfiguration(
 
 fun NativeTlsConfiguration.Builder.applySslContextParameters(
     sslContextParameters: SSLContextParameters
-): NativeTlsConfiguration.Builder {
-    return apply {
-        sslContextParameters.let { scp ->
-            setKeyPassword(
-                scp.keyManagers?.keyPassword?.toCharArray()
-                    ?: "password".toCharArray()
-            )
-            scp.keyManagers?.keyStore?.resource?.let { setKeyStorePath(Paths.get(it)) }
-            scp.keyManagers?.keyStore?.type?.let { setKeyStoreKeyType(it) }
-            setKeyStorePassword(
-                scp.keyManagers?.keyStore?.password?.toCharArray()
-                    ?: "password".toCharArray()
-            )
-            scp.trustManagers?.trustManager?.let { setTrustManager(it as X509TrustManager) }
-            scp.trustManagers?.keyStore?.resource?.let { setTrustStorePath(Paths.get(it)) }
-            setTrustStorePassword(
-                scp.trustManagers?.keyStore?.password?.toCharArray()
-                    ?: "password".toCharArray()
-            )
-            setCertificateAlias(scp.certAlias ?: "1")
-        }
+): NativeTlsConfiguration.Builder = apply {
+    sslContextParameters.let { scp ->
+        setKeyPassword(
+            scp.keyManagers?.keyPassword?.toCharArray()
+                ?: "password".toCharArray()
+        )
+        scp.keyManagers?.keyStore?.resource?.let { setKeyStorePath(Paths.get(it)) }
+        scp.keyManagers?.keyStore?.type?.let { setKeyStoreKeyType(it) }
+        setKeyStorePassword(
+            scp.keyManagers?.keyStore?.password?.toCharArray()
+                ?: "password".toCharArray()
+        )
+        scp.trustManagers?.trustManager?.let { setTrustManager(it as X509TrustManager) }
+        scp.trustManagers?.keyStore?.resource?.let { setTrustStorePath(Paths.get(it)) }
+        setTrustStorePassword(
+            scp.trustManagers?.keyStore?.password?.toCharArray()
+                ?: "password".toCharArray()
+        )
+        setCertificateAlias(scp.certAlias ?: "1")
     }
 }
 
 fun AisecDapsDriverConfig.Builder.applySslContextParameters(
     dapsSslContextParameters: SSLContextParameters,
     transportSslContextParameters: SSLContextParameters? = null
-): AisecDapsDriverConfig.Builder {
-    return apply {
-        dapsSslContextParameters.let { scp ->
-            setKeyPassword(
-                scp.keyManagers?.keyPassword?.toCharArray()
-                    ?: "password".toCharArray()
-            )
-            scp.keyManagers?.keyStore?.resource?.let { setKeyStorePath(Paths.get(it)) }
-            setKeyStorePassword(
-                scp.keyManagers?.keyStore?.password?.toCharArray()
-                    ?: "password".toCharArray()
-            )
-            scp.trustManagers?.trustManager?.let { setTrustManager(it) }
-            scp.trustManagers?.keyStore?.resource?.let { setTrustStorePath(Paths.get(it)) }
-            setTrustStorePassword(
-                scp.trustManagers?.keyStore?.password?.toCharArray()
-                    ?: "password".toCharArray()
-            )
-            setKeyAlias(scp.certAlias ?: "1")
-        }
-        // Load transport SSL certificates and create fingerprints
-        transportSslContextParameters?.let { scp ->
-            scp.keyManagers?.keyStore?.resource?.let { Paths.get(it) }?.let { keyStorePath ->
-                scp.keyManagers?.keyStore?.password?.toCharArray()?.let { keyStorePassword ->
-                    val ks = KeyStoreUtil.loadKeyStore(keyStorePath, keyStorePassword)
-                    loadTransportCertsFromKeystore(ks)
-                }
+): AisecDapsDriverConfig.Builder = apply {
+    dapsSslContextParameters.let { scp ->
+        setKeyPassword(
+            scp.keyManagers?.keyPassword?.toCharArray()
+                ?: "password".toCharArray()
+        )
+        scp.keyManagers?.keyStore?.resource?.let { setKeyStorePath(Paths.get(it)) }
+        setKeyStorePassword(
+            scp.keyManagers?.keyStore?.password?.toCharArray()
+                ?: "password".toCharArray()
+        )
+        scp.trustManagers?.trustManager?.let { setTrustManager(it) }
+        scp.trustManagers?.keyStore?.resource?.let { setTrustStorePath(Paths.get(it)) }
+        setTrustStorePassword(
+            scp.trustManagers?.keyStore?.password?.toCharArray()
+                ?: "password".toCharArray()
+        )
+        setKeyAlias(scp.certAlias ?: "1")
+    }
+    // Load transport SSL certificates and create fingerprints
+    transportSslContextParameters?.let { scp ->
+        scp.keyManagers?.keyStore?.resource?.let { Paths.get(it) }?.let { keyStorePath ->
+            scp.keyManagers?.keyStore?.password?.toCharArray()?.let { keyStorePassword ->
+                val ks = KeyStoreUtil.loadKeyStore(keyStorePath, keyStorePassword)
+                loadTransportCertsFromKeystore(ks)
             }
         }
     }

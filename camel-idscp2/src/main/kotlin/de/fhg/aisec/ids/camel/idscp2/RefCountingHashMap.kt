@@ -39,15 +39,13 @@ class RefCountingHashMap<K, V>(private val releaseFunction: (V) -> Unit) {
      * @param mappingFunction The function to create the element if it doesn't exist
      */
     @Synchronized
-    fun computeIfAbsent(key: K, mappingFunction: (K) -> V): V {
-        return map[key]?.let {
-            map[key] = Pair(it.first + 1, it.second)
-            it.second
-        } ?: let {
-            val value = mappingFunction(key)
-            map[key] = Pair(1, value)
-            value
-        }
+    fun computeIfAbsent(key: K, mappingFunction: (K) -> V): V = map[key]?.let {
+        map[key] = Pair(it.first + 1, it.second)
+        it.second
+    } ?: let {
+        val value = mappingFunction(key)
+        map[key] = Pair(1, value)
+        value
     }
 
     /**

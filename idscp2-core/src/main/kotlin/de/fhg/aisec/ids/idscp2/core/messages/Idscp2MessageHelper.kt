@@ -68,11 +68,9 @@ object Idscp2MessageHelper {
             .build()
     }
 
-    fun createIdscpDatExpiredMessage(): IdscpMessage {
-        return IdscpMessage.newBuilder()
-            .setIdscpDatExpired(IdscpDatExpired.newBuilder().build())
-            .build()
-    }
+    fun createIdscpDatExpiredMessage(): IdscpMessage = IdscpMessage.newBuilder()
+        .setIdscpDatExpired(IdscpDatExpired.newBuilder().build())
+        .build()
 
     fun createIdscpDatMessage(dat: ByteArray?): IdscpMessage {
         val idscpDat = IdscpDat.newBuilder()
@@ -129,10 +127,8 @@ object Idscp2MessageHelper {
             .build()
     }
 
-    fun createIdscpAckMessage(alternatingBit: Boolean): IdscpMessage {
-        return IdscpMessage.newBuilder()
-            .setIdscpAck(
-                IdscpAck.newBuilder().setAlternatingBit(alternatingBit).build()
-            ).build()
-    }
+    fun createIdscpAckMessage(alternatingBit: Boolean): IdscpMessage = IdscpMessage.newBuilder()
+        .setIdscpAck(
+            IdscpAck.newBuilder().setAlternatingBit(alternatingBit).build()
+        ).build()
 }

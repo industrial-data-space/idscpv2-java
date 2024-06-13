@@ -45,11 +45,7 @@ import java.util.stream.Collectors
  *
  * @author Leon Beckmann (leon.beckmann@aisec.fraunhofer.de)
  */
-internal class StateClosed(
-    fsm: FSM,
-    onMessageLock: Condition,
-    attestationConfig: AttestationConfig
-) : State() {
+internal class StateClosed(fsm: FSM, onMessageLock: Condition, attestationConfig: AttestationConfig) : State() {
 
     private fun runExitCode(onMessageLock: Condition) {
         // State Closed exit code

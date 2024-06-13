@@ -115,27 +115,25 @@ class TLSServerThread<CC : Idscp2Connection> internal constructor(
         } catch (ignore: IOException) {}
     }
 
-    override fun send(bytes: ByteArray): Boolean {
-        return if (!isConnected) {
-            LOG.warn("Server cannot send data because TLS socket is not connected.")
-            closeSockets()
-            false
-        } else if (!running) {
-            LOG.debug("Server cannot send data because socket is not in running state anymore.")
-            false
-        } else {
-            try {
-                LOG.trace("Server is sending message...")
-                outputStream.run {
-                    writeInt(bytes.size)
-                    write(bytes)
-                    flush()
-                }
-                true
-            } catch (e: Exception) {
-                LOG.warn("Server could not send data.", e)
-                false
+    override fun send(bytes: ByteArray): Boolean = if (!isConnected) {
+        LOG.warn("Server cannot send data because TLS socket is not connected.")
+        closeSockets()
+        false
+    } else if (!running) {
+        LOG.debug("Server cannot send data because socket is not in running state anymore.")
+        false
+    } else {
+        try {
+            LOG.trace("Server is sending message...")
+            outputStream.run {
+                writeInt(bytes.size)
+                write(bytes)
+                flush()
             }
+            true
+        } catch (e: Exception) {
+            LOG.warn("Server could not send data.", e)
+            false
         }
     }
 
@@ -162,9 +160,7 @@ class TLSServerThread<CC : Idscp2Connection> internal constructor(
     override val isConnected: Boolean
         get() = sslSocket.isConnected
 
-    override fun remotePeer(): String {
-        return remotePeer
-    }
+    override fun remotePeer(): String = remotePeer
 
     override fun handshakeCompleted(handshakeCompletedEvent: HandshakeCompletedEvent) {
         if (LOG.isTraceEnabled) {

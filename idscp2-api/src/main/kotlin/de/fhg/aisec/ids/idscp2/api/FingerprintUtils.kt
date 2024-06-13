@@ -33,9 +33,8 @@ private val hexLookup = (0..255).map {
  * Encode a byte array to a hex string
  * @return Hexadecimal representation of the given bytes
  */
-fun ByteArray.toHexString(delimiter: CharSequence = ""): String {
-    return this.joinToString(delimiter) { hexLookup[java.lang.Byte.toUnsignedInt(it)] }
-}
+fun ByteArray.toHexString(delimiter: CharSequence = ""): String =
+    this.joinToString(delimiter) { hexLookup[java.lang.Byte.toUnsignedInt(it)] }
 
 val Certificate.sha256Fingerprint
     get() = MessageDigest.getInstance("SHA-256").digest(encoded).toHexString()

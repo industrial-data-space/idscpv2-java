@@ -47,10 +47,7 @@ import org.slf4j.LoggerFactory
  * @author Leon Beckmann (leon.beckmann@aisec.fraunhofer.de)
  * @author Michael Lux (michael.lux@aisec.fraunhofer.de)
  */
-class Idscp2ConnectionImpl(
-    private val fsm: FSM,
-    override val id: String
-) : Idscp2Connection {
+class Idscp2ConnectionImpl(private val fsm: FSM, override val id: String) : Idscp2Connection {
 
     private val connectionListeners = LinkedHashSet<Idscp2ConnectionListener>()
     private val messageListeners = LinkedHashSet<Idscp2MessageListener>()
@@ -211,9 +208,7 @@ class Idscp2ConnectionImpl(
         }
     }
 
-    override fun remotePeer(): String {
-        return fsm.remotePeer
-    }
+    override fun remotePeer(): String = fsm.remotePeer
 
     /**
      * Check if the idscp connection is currently established
@@ -256,9 +251,7 @@ class Idscp2ConnectionImpl(
         }
     }
 
-    override fun toString(): String {
-        return "Idscp2ConnectionImpl($id)"
-    }
+    override fun toString(): String = "Idscp2ConnectionImpl($id)"
 
     companion object {
         private val LOG = LoggerFactory.getLogger(Idscp2ConnectionImpl::class.java)

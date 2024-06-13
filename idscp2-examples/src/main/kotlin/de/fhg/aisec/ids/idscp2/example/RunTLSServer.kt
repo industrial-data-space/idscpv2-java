@@ -36,7 +36,7 @@ object RunTLSServer {
         val keyStorePath = Paths.get(
             Objects.requireNonNull(
                 RunTLSServer::class.java.classLoader
-                    .getResource("ssl/provider-keystore.p12")
+                    .getResource("ssl/server-keystore.p12")
             ).path
         )
 
@@ -83,7 +83,6 @@ object RunTLSServer {
             .setTrustStorePath(trustStorePath)
             .setTrustStorePassword(password)
             .setCertificateAlias("1.0.1")
-            .setHost("consumer-core")
             .build()
 
         val initiator = Idscp2ServerInitiator()

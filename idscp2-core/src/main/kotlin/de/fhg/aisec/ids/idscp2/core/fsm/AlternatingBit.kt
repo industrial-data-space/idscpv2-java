@@ -50,7 +50,5 @@ class AlternatingBit(value: Boolean = false) {
         }
     }
 
-    fun asBoolean(): Boolean {
-        return this.bit != Bit.ZERO
-    }
+    fun asBoolean(): Boolean = this.bit != Bit.ZERO
 }

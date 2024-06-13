@@ -48,9 +48,7 @@ class SecureChannel(private val endpoint: SecureChannelEndpoint, private val pee
         endpoint.close()
     }
 
-    fun remotePeer(): String {
-        return endpoint.remotePeer()
-    }
+    fun remotePeer(): String = endpoint.remotePeer()
 
     /*
      * Send data via the secure channel endpoint to the peer connector

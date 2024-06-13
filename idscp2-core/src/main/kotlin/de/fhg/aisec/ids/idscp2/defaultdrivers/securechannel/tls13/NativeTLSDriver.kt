@@ -65,11 +65,9 @@ class NativeTLSDriver<CC : Idscp2Connection> : SecureChannelDriver<CC, NativeTls
         secureChannelConfig: NativeTlsConfiguration,
         serverConfiguration: Idscp2Configuration,
         connectionFactory: (FSM, String) -> CC
-    ): SecureServer {
-        return try {
-            TLSServer(connectionListenerPromise, secureChannelConfig, serverConfiguration, connectionFactory)
-        } catch (e: Exception) {
-            throw Idscp2Exception("Error while trying to to start SecureServer", e)
-        }
+    ): SecureServer = try {
+        TLSServer(connectionListenerPromise, secureChannelConfig, serverConfiguration, connectionFactory)
+    } catch (e: Exception) {
+        throw Idscp2Exception("Error while trying to to start SecureServer", e)
     }
 }

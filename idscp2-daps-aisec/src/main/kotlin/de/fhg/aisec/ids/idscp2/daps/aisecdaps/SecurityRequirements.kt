@@ -37,8 +37,6 @@ class SecurityRequirements {
             return this
         }
 
-        fun build(): SecurityRequirements {
-            return requirements
-        }
+        fun build(): SecurityRequirements = requirements
     }
 }

@@ -37,12 +37,7 @@ import org.slf4j.LoggerFactory
  *
  * @author Leon Beckmann (leon.beckmann@aisec.fraunhofer.de)
  */
-class StateWaitForAck(
-    fsm: FSM,
-    raTimer: StaticTimer,
-    handshakeTimer: StaticTimer,
-    ackTimer: StaticTimer
-) : State() {
+class StateWaitForAck(fsm: FSM, raTimer: StaticTimer, handshakeTimer: StaticTimer, ackTimer: StaticTimer) : State() {
 
     override fun runEntryCode(fsm: FSM) {
         if (LOG.isTraceEnabled) {

@@ -73,7 +73,10 @@ class FSMImpl<CC : Idscp2Connection>(
     handshakeTimeoutDelay: Long,
     private val connectionId: String,
     private val connection: CompletableFuture<CC>
-) : RaProverFsmListener, RaVerifierFsmListener, ScFsmListener, FSM {
+) : RaProverFsmListener,
+    RaVerifierFsmListener,
+    ScFsmListener,
+    FSM {
     /*  -----------   IDSCP2 Protocol States   ---------- */
     private val states = HashMap<FsmState, State>()
 
@@ -456,9 +459,7 @@ class FSMImpl<CC : Idscp2Connection>(
     /**
      * Repeat RA Verification if remote peer, triggered by User
      */
-    override fun repeatRa(): FsmResultCode {
-        return onUpperEvent(Event(InternalControlMessage.REPEAT_RA))
-    }
+    override fun repeatRa(): FsmResultCode = onUpperEvent(Event(InternalControlMessage.REPEAT_RA))
 
     /**
      * Get local Dat
@@ -702,9 +703,7 @@ class FSMImpl<CC : Idscp2Connection>(
     override val isFsmLocked: Boolean
         get() = isLocked
 
-    override fun getState(state: FsmState): State {
-        return states[state] ?: throw NoSuchElementException("State unknown")
-    }
+    override fun getState(state: FsmState): State = states[state] ?: throw NoSuchElementException("State unknown")
 
     override fun setRaMechanisms(proverMechanism: String, verifierMechanism: String) {
         this.proverMechanism = proverMechanism

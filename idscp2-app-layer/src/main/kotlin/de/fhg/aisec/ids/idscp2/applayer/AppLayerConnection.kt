@@ -162,9 +162,7 @@ class AppLayerConnection private constructor(private val idscp2Connection: Idscp
         }
     }
 
-    override fun toString(): String {
-        return "AppLayerConnection($id)"
-    }
+    override fun toString(): String = "AppLayerConnection($id)"
 
     companion object {
         private val LOG = LoggerFactory.getLogger(AppLayerConnection::class.java)
@@ -173,12 +171,10 @@ class AppLayerConnection private constructor(private val idscp2Connection: Idscp
         )
         private const val DEFAULT_TIMEOUT = 10000L
 
-        fun from(idscp2Connection: Idscp2Connection): AppLayerConnection {
-            return if (idscp2Connection is AppLayerConnection) {
-                idscp2Connection
-            } else {
-                appLayerConnections.computeIfAbsent(idscp2Connection) { AppLayerConnection(it) }
-            }
+        fun from(idscp2Connection: Idscp2Connection): AppLayerConnection = if (idscp2Connection is AppLayerConnection) {
+            idscp2Connection
+        } else {
+            appLayerConnections.computeIfAbsent(idscp2Connection) { AppLayerConnection(it) }
         }
     }
 }

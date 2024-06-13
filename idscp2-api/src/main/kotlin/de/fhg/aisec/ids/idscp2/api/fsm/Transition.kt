@@ -26,7 +26,5 @@ package de.fhg.aisec.ids.idscp2.api.fsm
  * @author Leon Beckmann (leon.beckmann@aisec.fraunhofer.de)
  */
 class Transition(private val eventHandler: (Event) -> FsmResult) {
-    fun doTransition(e: Event): FsmResult {
-        return eventHandler(e)
-    }
+    fun doTransition(e: Event): FsmResult = eventHandler(e)
 }

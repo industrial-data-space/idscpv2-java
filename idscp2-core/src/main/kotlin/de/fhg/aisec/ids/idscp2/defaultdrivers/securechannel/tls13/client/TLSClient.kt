@@ -58,7 +58,9 @@ class TLSClient<CC : Idscp2Connection>(
     private val clientConfiguration: Idscp2Configuration,
     private val nativeTlsConfiguration: NativeTlsConfiguration,
     private val connectionFuture: CompletableFuture<CC>
-) : HandshakeCompletedListener, DataAvailableListener, SecureChannelEndpoint {
+) : HandshakeCompletedListener,
+    DataAvailableListener,
+    SecureChannelEndpoint {
     private val clientSocket: Socket
     private lateinit var dataOutputStream: DataOutputStream
     private lateinit var inputListenerThread: InputListenerThread
@@ -152,35 +154,31 @@ class TLSClient<CC : Idscp2Connection>(
         cleanup()
     }
 
-    override fun send(bytes: ByteArray): Boolean {
-        return if (!isConnected) {
-            LOG.warn("Client cannot send data because TLS socket is not connected")
-            false
-        } else if (!inputListenerThread.running) {
-            LOG.debug("Client cannot send data because socket is not in running state anymore.")
-            false
-        } else {
-            try {
-                LOG.trace("Client is sending message...")
-                dataOutputStream.run {
-                    writeInt(bytes.size)
-                    write(bytes)
-                    flush()
-                }
-                true
-            } catch (e: Exception) {
-                LOG.warn("Client could not send data", e)
-                false
+    override fun send(bytes: ByteArray): Boolean = if (!isConnected) {
+        LOG.warn("Client cannot send data because TLS socket is not connected")
+        false
+    } else if (!inputListenerThread.running) {
+        LOG.debug("Client cannot send data because socket is not in running state anymore.")
+        false
+    } else {
+        try {
+            LOG.trace("Client is sending message...")
+            dataOutputStream.run {
+                writeInt(bytes.size)
+                write(bytes)
+                flush()
             }
+            true
+        } catch (e: Exception) {
+            LOG.warn("Client could not send data", e)
+            false
         }
     }
 
     override val isConnected: Boolean
         get() = clientSocket.isConnected
 
-    override fun remotePeer(): String {
-        return remotePeer
-    }
+    override fun remotePeer(): String = remotePeer
 
     override fun handshakeCompleted(handshakeCompletedEvent: HandshakeCompletedEvent) {
         // start receiving listener after TLS Handshake was successful

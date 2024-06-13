@@ -37,7 +37,7 @@ allprojects {
         maven("https://gitlab.cc-asp.fraunhofer.de/api/v4/projects/55371/packages/maven")
     }
 
-    val versionRegex = ".*(rc|beta)-?[0-9]*$".toRegex(RegexOption.IGNORE_CASE)
+    val versionRegex = ".*(rc|beta|alpha)-?[0-9]*$".toRegex(RegexOption.IGNORE_CASE)
 
     tasks.withType<DependencyUpdatesTask> {
         rejectVersionIf {
@@ -45,6 +45,7 @@ allprojects {
             versionRegex.matches(candidate.version)
                 || (candidate.group in setOf("org.apache.camel", "org.apache.camel.springboot")
                 && !candidate.version.startsWith("3.18"))
+                || candidate.group == "com.google.protobuf" && !candidate.version.startsWith("3.")
         }
     }
 }

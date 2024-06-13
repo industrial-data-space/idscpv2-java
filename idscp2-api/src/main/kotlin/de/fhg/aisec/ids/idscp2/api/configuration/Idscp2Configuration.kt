@@ -59,9 +59,7 @@ class Idscp2Configuration {
             return this
         }
 
-        fun build(): Idscp2Configuration {
-            return settings
-        }
+        fun build(): Idscp2Configuration = settings
     }
 
     override fun equals(other: Any?): Boolean {
@@ -86,11 +84,9 @@ class Idscp2Configuration {
         return result
     }
 
-    override fun toString(): String {
-        return "Idscp2Configuration(attestationConfig=$attestationConfig, " +
-            "dapsDriver=$dapsDriver, handshakeTimeoutDelay=$handshakeTimeoutDelay, " +
-            "ackTimeoutDelay=$ackTimeoutDelay)"
-    }
+    override fun toString(): String = "Idscp2Configuration(attestationConfig=$attestationConfig, " +
+        "dapsDriver=$dapsDriver, handshakeTimeoutDelay=$handshakeTimeoutDelay, " +
+        "ackTimeoutDelay=$ackTimeoutDelay)"
 
     companion object {
         const val DEFAULT_ACK_TIMEOUT_DELAY = "200" // (in ms)

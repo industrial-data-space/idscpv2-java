@@ -41,7 +41,9 @@ import java.util.concurrent.CompletableFuture
  * The IDSCP2 client consumer.
  */
 class Idscp2ClientConsumer(private val endpoint: Idscp2ClientEndpoint, processor: Processor) :
-    DefaultConsumer(endpoint, processor), GenericMessageListener, IdsMessageListener {
+    DefaultConsumer(endpoint, processor),
+    GenericMessageListener,
+    IdsMessageListener {
     private lateinit var connectionFuture: CompletableFuture<AppLayerConnection>
     private var retryCount = 0L
 
