@@ -29,17 +29,11 @@ import de.fhg.aisec.ids.idscp2.api.error.Idscp2TimeoutException
 import de.fhg.aisec.ids.idscp2.api.error.Idscp2WouldBlockException
 import de.fhg.aisec.ids.idscp2.api.fsm.FSM
 import de.fhg.aisec.ids.idscp2.api.fsm.FsmResultCode
+import de.fhg.aisec.ids.idscp2.core.FastLatch
 import de.fhg.aisec.ids.idscp2.core.forEachResilient
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.slf4j.LoggerFactory
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * The IDSCP2 Connection class holds connections between connectors
@@ -51,12 +45,12 @@ class Idscp2ConnectionImpl(private val fsm: FSM, override val id: String) : Idsc
 
     private val connectionListeners = LinkedHashSet<Idscp2ConnectionListener>()
     private val messageListeners = LinkedHashSet<Idscp2MessageListener>()
-    private val connectionDeferred = CompletableDeferred<Unit>()
+    private val connectionLatch = FastLatch()
     private var closed = false
-    private var closeMutex = Mutex()
+    private var closeMutex = ReentrantLock(true)
 
     override fun unlockMessaging() {
-        connectionDeferred.complete(Unit)
+        connectionLatch.unlock()
     }
 
     /**
@@ -70,7 +64,7 @@ class Idscp2ConnectionImpl(private val fsm: FSM, override val id: String) : Idsc
         // we have to unlock connection listeners to avoid deadlocks with onError()
         // which would block the closedLock until connection listeners are available
         // to avoid error loss
-        connectionDeferred.complete(Unit)
+        connectionLatch.unlock()
 
         /*
          * When closing the connection, also the secure channel and its sockets
@@ -82,19 +76,17 @@ class Idscp2ConnectionImpl(private val fsm: FSM, override val id: String) : Idsc
          * or not, we should synchronize this sequence to avoid race conditions on the error
          * parsing, as well as avoiding error message loss.
          */
-        runBlocking {
-            closeMutex.withLock {
-                when (val res = fsm.closeConnection()) {
-                    FsmResultCode.FSM_NOT_STARTED -> {
-                        // not closed
-                        throw Idscp2Exception("Handshake not started: " + res.value)
-                    }
-                    else -> {
-                        // closed
-                        closed = true
-                        if (LOG.isDebugEnabled) {
-                            LOG.debug("IDSCP2 connection {} closed", id)
-                        }
+        closeMutex.withLock {
+            when (val res = fsm.closeConnection()) {
+                FsmResultCode.FSM_NOT_STARTED -> {
+                    // not closed
+                    throw Idscp2Exception("Handshake not started: " + res.value)
+                }
+                else -> {
+                    // closed
+                    closed = true
+                    if (LOG.isDebugEnabled) {
+                        LOG.debug("IDSCP2 connection {} closed", id)
                     }
                 }
             }
@@ -163,10 +155,10 @@ class Idscp2ConnectionImpl(private val fsm: FSM, override val id: String) : Idsc
     }
 
     override fun onMessage(msg: ByteArray) {
-        ioScope.launch {
+        Thread.startVirtualThread {
             LOG.trace("Async message processing started...")
             // When unlock is called, although not synchronized, this will eventually stop blocking.
-            connectionDeferred.await()
+            connectionLatch.await()
             synchronized(messageListeners) {
                 LOG.debug("Received new IDSCP Message, notifying {} listeners", messageListeners.size)
                 messageListeners.forEachResilient(LOG) { l: Idscp2MessageListener ->
@@ -177,11 +169,11 @@ class Idscp2ConnectionImpl(private val fsm: FSM, override val id: String) : Idsc
     }
 
     override fun onError(t: Throwable) {
-        ioScope.launch {
+        Thread.startVirtualThread {
             closeMutex.withLock {
                 // Check if connection has already been closed, then we do not pass errors to the user
                 if (!closed) {
-                    connectionDeferred.await()
+                    connectionLatch.await()
                     // Iterate over copy to prevent ConcurrentModificationExceptions from changes during iteration.
                     val copyList: List<Idscp2ConnectionListener>
                     synchronized(connectionListeners) {
@@ -194,8 +186,8 @@ class Idscp2ConnectionImpl(private val fsm: FSM, override val id: String) : Idsc
     }
 
     override fun onClose() {
-        ioScope.launch {
-            connectionDeferred.await()
+        Thread.startVirtualThread {
+            connectionLatch.await()
             if (LOG.isInfoEnabled) {
                 LOG.info("Connection with id {} is closing, notify listeners...", id)
             }
@@ -255,10 +247,5 @@ class Idscp2ConnectionImpl(private val fsm: FSM, override val id: String) : Idsc
 
     companion object {
         private val LOG = LoggerFactory.getLogger(Idscp2ConnectionImpl::class.java)
-        private val ioScope = CoroutineScope(
-            Dispatchers.IO + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
-                LOG.error("Error in async connection code", throwable)
-            }
-        )
     }
 }

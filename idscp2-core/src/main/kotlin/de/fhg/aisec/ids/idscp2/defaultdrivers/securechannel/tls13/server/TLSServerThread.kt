@@ -57,10 +57,7 @@ class TLSServerThread<CC : Idscp2Connection> internal constructor(
     private val nativeTlsConfiguration: NativeTlsConfiguration,
     private val serverConfiguration: Idscp2Configuration,
     private val connectionFactory: (FSM, String) -> CC
-) : Thread("IDSCP2-Server-Worker-${nativeTlsConfiguration.host}:${nativeTlsConfiguration.serverPort}"),
-    HandshakeCompletedListener,
-    SecureChannelEndpoint,
-    Closeable {
+) : HandshakeCompletedListener, SecureChannelEndpoint, Closeable {
     @Volatile
     private var running = true
     private val inputStream: DataInputStream
@@ -69,42 +66,51 @@ class TLSServerThread<CC : Idscp2Connection> internal constructor(
     private val tlsVerificationLatch = FastLatch()
     private var remotePeer = "NotConnected"
 
-    override fun run() {
-        // first run the tls handshake to enforce catching every error occurred during the handshake
-        // before reading from buffer
-        try {
-            sslSocket.startHandshake()
+    init {
+        // Set timeout for blocking read
+        sslSocket.soTimeout = nativeTlsConfiguration.socketTimeout
+        inputStream = DataInputStream(sslSocket.inputStream)
+        outputStream = DataOutputStream(sslSocket.outputStream)
+        sslSocket.addHandshakeCompletedListener(this)
+        Thread.ofVirtual()
+            .name("IDSCP2-Server-Worker-${nativeTlsConfiguration.host}:${nativeTlsConfiguration.serverPort}")
+            .start thread@{
+                // first run the tls handshake to enforce catching every error occurred during the handshake
+                // before reading from buffer
+                try {
+                    sslSocket.startHandshake()
 
-            // Wait for TLS session verification to ensure socket listener is not available before
-            // connection is trusted
-            tlsVerificationLatch.await()
-        } catch (e: Exception) {
-            running = false
-            connectionFuture.completeExceptionally(
-                Idscp2Exception("TLS handshake failed", e)
-            )
-            return
-        }
+                    // Wait for TLS session verification to ensure socket listener is not available before
+                    // connection is trusted
+                    tlsVerificationLatch.await()
+                } catch (e: Exception) {
+                    running = false
+                    connectionFuture.completeExceptionally(
+                        Idscp2Exception("TLS handshake failed", e)
+                    )
+                    return@thread
+                }
 
-        // TLS connection established, run socket listener
-        var buf: ByteArray
-        while (running) {
-            try {
-                val len = inputStream.readInt()
-                buf = ByteArray(len)
-                inputStream.readFully(buf, 0, len)
-                onMessage(buf)
-            } catch (ignore: SocketTimeoutException) {
-                // Timeout catches safeStop() call and allows to send server_goodbye
-            } catch (e: EOFException) {
-                running = false
-                onClose()
-            } catch (e: Exception) {
-                running = false
-                onError(e)
+                // TLS connection established, run socket listener
+                var buf: ByteArray
+                while (running) {
+                    try {
+                        val len = inputStream.readInt()
+                        buf = ByteArray(len)
+                        inputStream.readFully(buf, 0, len)
+                        onMessage(buf)
+                    } catch (ignore: SocketTimeoutException) {
+                        // Timeout catches safeStop() call and allows to send server_goodbye
+                    } catch (e: EOFException) {
+                        running = false
+                        onClose()
+                    } catch (e: Exception) {
+                        running = false
+                        onError(e)
+                    }
+                }
+                closeSockets()
             }
-        }
-        closeSockets()
     }
 
     private fun closeSockets() {
@@ -215,12 +221,5 @@ class TLSServerThread<CC : Idscp2Connection> internal constructor(
 
     companion object {
         private val LOG = LoggerFactory.getLogger(TLSServerThread::class.java)
-    }
-
-    init {
-        // Set timeout for blocking read
-        sslSocket.soTimeout = nativeTlsConfiguration.socketTimeout
-        inputStream = DataInputStream(sslSocket.inputStream)
-        outputStream = DataOutputStream(sslSocket.outputStream)
     }
 }

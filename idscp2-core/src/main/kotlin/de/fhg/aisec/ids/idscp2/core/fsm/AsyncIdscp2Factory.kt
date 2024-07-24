@@ -23,10 +23,6 @@ import de.fhg.aisec.ids.idscp2.api.configuration.Idscp2Configuration
 import de.fhg.aisec.ids.idscp2.api.connection.Idscp2Connection
 import de.fhg.aisec.ids.idscp2.api.fsm.FSM
 import de.fhg.aisec.ids.idscp2.core.securechannel.SecureChannel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
@@ -43,7 +39,6 @@ import java.util.concurrent.CompletableFuture
 
 object AsyncIdscp2Factory {
     private val LOG = LoggerFactory.getLogger(AsyncIdscp2Factory::class.java)
-    private val ioScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     fun <CC : Idscp2Connection> initiateIdscp2Connection(
         secureChannel: SecureChannel,
@@ -73,8 +68,8 @@ object AsyncIdscp2Factory {
         // register FSM to secure channel, pass peer certificate to FSM
         secureChannel.setFsm(fsm)
 
-        // ForkJoinPool exhibits strange deadlocking behavior when used here, reason unknown yet.
-        ioScope.launch {
+        // ForkJoinPool used to exhibit strange deadlocking behavior when used here, reason unknown.
+        Thread.ofVirtual().start {
             try {
                 if (LOG.isDebugEnabled) {
                     LOG.debug("Asynchronously starting IDSCP2 handshake for connection {}...", id)

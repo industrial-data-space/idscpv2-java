@@ -25,43 +25,45 @@ import java.io.InputStream
 import java.net.SocketTimeoutException
 
 /**
- * A simple Listener thread that listens to an input stream and notifies a listeners
+ * A simple Listener thread that listens to an input stream and notifies a listener
  * when new data has been received
  *
  * @author Leon Beckmann (leon.beckmann@aisec.fraunhofer.de)
  */
-class InputListenerThread(name: String, inputStream: InputStream, private var listener: DataAvailableListener) :
-    Thread(name) {
+class InputListenerThread(val name: String, inputStream: InputStream, private var listener: DataAvailableListener) {
     private val dataInputStream: DataInputStream = DataInputStream(inputStream)
 
     @Volatile
     var running = true
         private set
 
-    override fun run() {
-        var buf: ByteArray
-        while (running) {
+    fun start() {
+        Thread.ofVirtual().name(name).start {
+            var buf: ByteArray
+            while (running) {
+                try {
+                    // first read the length
+                    val len = dataInputStream.readInt()
+                    buf = ByteArray(len)
+                    // then read the data
+                    dataInputStream.readFully(buf, 0, len)
+                    // provide to listener
+                    listener.onMessage(buf)
+                } catch (ignore: SocketTimeoutException) {
+                    // timeout to catch safeStop() call
+                } catch (e: EOFException) {
+                    running = false
+                    listener.onClose()
+                } catch (e: Exception) {
+                    running = false
+                    listener.onError(e)
+                }
+            }
             try {
-                // first read the length
-                val len = dataInputStream.readInt()
-                buf = ByteArray(len)
-                // then read the data
-                dataInputStream.readFully(buf, 0, len)
-                // provide to listener
-                listener.onMessage(buf)
-            } catch (ignore: SocketTimeoutException) {
-                // timeout to catch safeStop() call
-            } catch (e: EOFException) {
-                running = false
-                listener.onClose()
-            } catch (e: Exception) {
-                running = false
-                listener.onError(e)
+                dataInputStream.close()
+            } catch (ignore: Exception) {
             }
         }
-        try {
-            dataInputStream.close()
-        } catch (ignore: Exception) {}
     }
 
     fun safeStop() {

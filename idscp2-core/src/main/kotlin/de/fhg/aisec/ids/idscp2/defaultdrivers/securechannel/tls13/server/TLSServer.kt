@@ -84,23 +84,19 @@ class TLSServer<CC : Idscp2Connection>(
                     connectionFuture.thenAccept { connection ->
                         connectionListenerPromise.thenAccept { it.onConnectionCreated(connection) }
                     }.exceptionally {
-                        // either the TLS handshake or the idscp2 handshake failed, both will cleanup the server thread
+                        // either the TLS handshake or the idscp2 handshake failed, both will clean up the server thread
                         LOG.warn("Idscp2Connection creation failed", it)
                         null
                     }
 
                     // Create a connection future that will register the connection to the server and notify the user
-                    val serverThread = TLSServerThread(
+                    TLSServerThread(
                         sslSocket,
                         connectionFuture,
                         nativeTlsConfiguration,
                         serverConfiguration,
                         connectionFactory
                     )
-
-                    // register handshake complete listener and run server thread which initiates the tls handshake
-                    sslSocket.addHandshakeCompletedListener(serverThread)
-                    serverThread.start()
                 } catch (serverThreadException: Exception) {
                     LOG.warn("Error while creating/starting TLSServerThread", serverThreadException)
                 }
@@ -197,11 +193,7 @@ class TLSServer<CC : Idscp2Connection>(
         if (LOG.isTraceEnabled) {
             LOG.trace("Starting TLS server...")
         }
-        serverThread = Thread(
-            this,
-            "TLS Server Thread " +
-                nativeTlsConfiguration.host + ":" + nativeTlsConfiguration.serverPort
-        )
-        serverThread.start()
+        serverThread = Thread.ofVirtual().name("TLS Server Thread " +
+            nativeTlsConfiguration.host + ":" + nativeTlsConfiguration.serverPort).start(this)
     }
 }

@@ -230,8 +230,8 @@ class StateWaitForRaVerifier(
                 }
 
                 fsm.raVerifierDriver?.let {
-                    // Run in async fire-and-forget coroutine to avoid cycles caused by protocol misuse
-                    runAsync {
+                    // Run in fire-and-forget manner to avoid cycles caused by protocol misuse
+                    Thread.startVirtualThread {
                         it.delegate(event.idscpMessage.idscpRaProver.data.toByteArray())
                     }
                 } ?: run {

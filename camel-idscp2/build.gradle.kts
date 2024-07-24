@@ -6,7 +6,6 @@ dependencies {
     api(libs.infomodel)
 
     implementation(project(":idscp2-core"))
-    implementation(libs.kotlinx.coroutines)
     implementation(libs.camel.core)
     implementation(libs.protobuf)
     implementation(libs.guava) {

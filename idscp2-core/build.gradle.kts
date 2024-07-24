@@ -6,7 +6,6 @@ val testImplementation by configurations
 dependencies {
     api(project(":idscp2-api"))
 
-    implementation(libs.kotlinx.coroutines)
     implementation(libs.bouncycastle)
     implementation(libs.protobuf)
 

@@ -43,11 +43,6 @@ import de.fhg.aisec.ids.idscp2.core.securechannel.SecureChannel
 import de.fhg.aisec.ids.idscp2.messages.IDSCP2.IdscpAck
 import de.fhg.aisec.ids.idscp2.messages.IDSCP2.IdscpData
 import de.fhg.aisec.ids.idscp2.messages.IDSCP2.IdscpMessage
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import java.security.cert.X509Certificate
 import java.util.concurrent.CompletableFuture
@@ -608,8 +603,8 @@ class FSMImpl<CC : Idscp2Connection>(
         raVerifierDriver?.let {
             if (it.isAlive) {
                 it.interrupt()
-                // run in async fire-and-forget coroutine to avoid cycles caused by protocol misuse
-                ioScope.launch { it.terminate() }
+                // run in fire-and-forget manner to avoid cycles caused by protocol misuse
+                Thread.startVirtualThread { it.terminate() }
             }
         }
     }
@@ -647,8 +642,8 @@ class FSMImpl<CC : Idscp2Connection>(
         proverHandshakeTimer.cancelTimeout()
         raProverDriver?.let {
             if (it.isAlive) {
-                // Run in async fire-and-forget coroutine to avoid cycles caused by protocol misuse
-                ioScope.launch { it.terminate() }
+                // Run in fire-and-forget manner to avoid cycles caused by protocol misuse
+                Thread.startVirtualThread { it.terminate() }
             }
         }
     }
@@ -668,8 +663,8 @@ class FSMImpl<CC : Idscp2Connection>(
         }
         isLocked = true
 
-        // run in async fire-and-forget coroutine to avoid cycles caused by protocol misuse
-        ioScope.launch {
+        // run in fire-and-forget manner to avoid cycles caused by protocol misuse
+        Thread.startVirtualThread {
             if (LOG.isTraceEnabled) {
                 LOG.trace("Closing secure channel of connection {}...", connectionId)
             }
@@ -769,11 +764,6 @@ class FSMImpl<CC : Idscp2Connection>(
 
     companion object {
         private val LOG = LoggerFactory.getLogger(FSM::class.java)
-        private val ioScope = CoroutineScope(
-            Dispatchers.IO + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
-                LOG.error("Error in async FSM code", throwable)
-            }
-        )
     }
 
     init {

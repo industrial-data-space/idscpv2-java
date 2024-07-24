@@ -27,11 +27,6 @@ import de.fhg.aisec.ids.idscp2.applayer.AppLayerConnection
 import de.fhg.aisec.ids.idscp2.applayer.listeners.GenericMessageListener
 import de.fhg.aisec.ids.idscp2.applayer.listeners.IdsMessageListener
 import de.fraunhofer.iais.eis.Message
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.apache.camel.Processor
 import org.apache.camel.support.DefaultConsumer
 import org.slf4j.LoggerFactory
@@ -89,9 +84,9 @@ class Idscp2ClientConsumer(private val endpoint: Idscp2ClientEndpoint, processor
                         "after ${endpoint.retryDelayMs} ms...",
                     it
                 )
-                ioScope.launch {
+                Thread.startVirtualThread {
                     // Sleep for retryDelayMs
-                    delay(endpoint.retryDelayMs)
+                    Thread.sleep(endpoint.retryDelayMs)
                     // Retry connect
                     connect()
                 }
@@ -194,6 +189,5 @@ class Idscp2ClientConsumer(private val endpoint: Idscp2ClientEndpoint, processor
 
     companion object {
         private val LOG = LoggerFactory.getLogger(Idscp2ClientConsumer::class.java)
-        val ioScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     }
 }

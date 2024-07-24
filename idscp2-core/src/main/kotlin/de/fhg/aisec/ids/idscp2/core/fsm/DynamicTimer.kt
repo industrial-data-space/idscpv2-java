@@ -19,12 +19,6 @@
  */
 package de.fhg.aisec.ids.idscp2.core.fsm
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -36,7 +30,7 @@ import kotlin.concurrent.withLock
  * @author Leon Beckmann (leon.beckmann@aisec.fraunhofer.de)
  */
 class DynamicTimer internal constructor(private val fsmIsBusy: ReentrantLock, private val timeoutHandler: Runnable) {
-    private var job: Job? = null
+    private var vThread: Thread? = null
 
     fun resetTimeout(delay: Long) {
         cancelTimeout()
@@ -48,11 +42,13 @@ class DynamicTimer internal constructor(private val fsmIsBusy: ReentrantLock, pr
      */
     @Synchronized
     fun start(delay: Long) {
-        job = scope.launch {
-            delay(delay)
-            fsmIsBusy.withLock {
-                timeoutHandler.run()
-            }
+        vThread = Thread.startVirtualThread {
+            try {
+                Thread.sleep(delay)
+                fsmIsBusy.withLock {
+                    timeoutHandler.run()
+                }
+            } catch (ignored: InterruptedException) {}
         }
     }
 
@@ -61,10 +57,6 @@ class DynamicTimer internal constructor(private val fsmIsBusy: ReentrantLock, pr
      */
     @Synchronized
     fun cancelTimeout() {
-        job?.cancel()
-    }
-
-    companion object {
-        private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+        vThread?.interrupt()
     }
 }
