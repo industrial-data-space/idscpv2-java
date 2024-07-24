@@ -36,10 +36,10 @@ import java.nio.charset.StandardCharsets
 
 class Idscp2ServerInitiator : Idscp2EndpointListener<Idscp2Connection> {
     fun init(configuration: Idscp2Configuration, nativeTlsConfiguration: NativeTlsConfiguration) {
-        // create secure channel driver
+        // Create secure channel driver
         val secureChannelDriver = NativeTLSDriver<Idscp2Connection>()
 
-        // register ra drivers
+        // Register ra drivers
         RaProverDriverRegistry.registerDriver(
             DemoRaProver.DEMO_RA_PROVER_ID,
             ::DemoRaProver,
@@ -52,7 +52,7 @@ class Idscp2ServerInitiator : Idscp2EndpointListener<Idscp2Connection> {
             null
         )
 
-        // create server config
+        // Create server config
         val serverConfig = Idscp2ServerFactory(
             ::Idscp2ConnectionImpl,
             this,
@@ -61,9 +61,13 @@ class Idscp2ServerInitiator : Idscp2EndpointListener<Idscp2Connection> {
             nativeTlsConfiguration
         )
 
-        // run idscp2 server
-        @Suppress("UNUSED_VARIABLE")
-        val idscp2Server = serverConfig.listen()
+        // Run IDSCP2 server
+        serverConfig.listen()
+
+        // Keep application from terminating
+        while (true) {
+            Thread.sleep(1000)
+        }
     }
 
     override fun onConnection(connection: Idscp2Connection) {
@@ -78,7 +82,7 @@ class Idscp2ServerInitiator : Idscp2EndpointListener<Idscp2Connection> {
             }
         })
         connection.addMessageListener { c: Idscp2Connection, data: ByteArray ->
-            LOG.info("Received ping message: ${String(data, StandardCharsets.UTF_8)}".trimIndent())
+            LOG.info("Received message: ${String(data, StandardCharsets.UTF_8)}".trimIndent())
 
             LOG.info("Sending PONG...")
             c.nonBlockingSend("PONG".toByteArray(StandardCharsets.UTF_8))

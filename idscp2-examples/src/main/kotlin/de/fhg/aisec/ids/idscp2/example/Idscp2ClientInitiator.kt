@@ -51,6 +51,9 @@ class Idscp2ClientInitiator {
             null
         )
 
+        // Reference to main Thread
+        val mainThread = Thread.currentThread()
+
         // connect to idscp2 server
         val connectionFuture = secureChannelDriver.connect(
             ::Idscp2ConnectionImpl,
@@ -69,8 +72,9 @@ class Idscp2ClientInitiator {
                 }
             })
             connection.addMessageListener { c: Idscp2Connection, data: ByteArray ->
-                LOG.info("Received ping message: " + String(data, StandardCharsets.UTF_8))
+                LOG.info("Received message: " + String(data, StandardCharsets.UTF_8))
                 c.close()
+                mainThread.interrupt()
             }
             connection.unlockMessaging()
             LOG.info("Send PING ...")
@@ -80,6 +84,13 @@ class Idscp2ClientInitiator {
             LOG.error("Client endpoint error occurred", t)
             null
         }
+
+        // Keep application from terminating until main Thread is interrupted
+        try {
+            while (true) {
+                Thread.sleep(1000)
+            }
+        } catch (_: InterruptedException) {}
     }
 
     companion object {
