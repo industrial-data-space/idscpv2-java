@@ -1,16 +1,16 @@
 [versions]
 # Versions for modules that will be released as libraries
-idscp2 = "0.19.3"
+idscp2 = "0.20.0"
 
 infomodel = "4.1.3"
 
-ktlint = "1.3.0"
+ktlint = "1.3.1"
 
 # Kotlin library/compiler version
 kotlin = "2.0.0"
 kotlinxCoroutines = "1.8.1"
 # HTTP client
-ktor = "2.3.11"
+ktor = "2.3.12"
 
 camel = "3.18.8"
 
@@ -29,7 +29,7 @@ bouncycastle = "1.78.1"
 jackson = "2.17.1"
 
 # Needed for token manager to assemble JWTs
-jsonwebtoken = "0.12.5"
+jsonwebtoken = "0.12.6"
 jose4j = "0.9.6"
 
 [libraries]
