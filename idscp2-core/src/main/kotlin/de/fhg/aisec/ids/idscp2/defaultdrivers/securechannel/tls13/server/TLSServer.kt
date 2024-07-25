@@ -193,7 +193,8 @@ class TLSServer<CC : Idscp2Connection>(
         if (LOG.isTraceEnabled) {
             LOG.trace("Starting TLS server...")
         }
-        serverThread = Thread.ofVirtual().name("TLS Server Thread " +
-            nativeTlsConfiguration.host + ":" + nativeTlsConfiguration.serverPort).start(this)
+        serverThread = Thread.ofVirtual().name(
+            "TLS Server Thread ${nativeTlsConfiguration.host}:${nativeTlsConfiguration.serverPort}"
+        ).start(this)
     }
 }

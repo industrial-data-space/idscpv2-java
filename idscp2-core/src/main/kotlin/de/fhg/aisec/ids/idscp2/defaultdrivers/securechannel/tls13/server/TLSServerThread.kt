@@ -57,7 +57,9 @@ class TLSServerThread<CC : Idscp2Connection> internal constructor(
     private val nativeTlsConfiguration: NativeTlsConfiguration,
     private val serverConfiguration: Idscp2Configuration,
     private val connectionFactory: (FSM, String) -> CC
-) : HandshakeCompletedListener, SecureChannelEndpoint, Closeable {
+) : HandshakeCompletedListener,
+    SecureChannelEndpoint,
+    Closeable {
     @Volatile
     private var running = true
     private val inputStream: DataInputStream
